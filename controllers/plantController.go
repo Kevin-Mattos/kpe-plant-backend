@@ -4,40 +4,46 @@ import (
 	"database/sql"
 	"plant_api/datasource"
 	"plant_api/entities"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PlantController interface {
-	GetPlant(id int) (*entities.Plant, error)
-	GetPlants() (entities.Plants, error)
-	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
-	DeletePlant(id int) error
+	GetPlant(c *gin.Context)
+	GetPlants(c *gin.Context)
+	CreatePlant(c *gin.Context)
+	DeletePlant(c *gin.Context)
 }
 
 type PlantControllerImpl struct {
 	db datasource.PlantDatabase
 }
 
-func CreateController(db *sql.DB) PlantController {
+func CreatePlantController(db *sql.DB) PlantController {
 	repos := &PlantControllerImpl{}
 
 	repos.db = datasource.CreatePlantDatabase(db)
+
 	return repos
 }
 
-func (repo *PlantControllerImpl) GetPlant(id int) (*entities.Plant, error) {
+func (repo *PlantControllerImpl) GetPlant(c *gin.Context) {
 
-	plant, err := repo.db.GetPlant(id)
-	return plant, err
+	id := 1
+	repo.db.GetPlant(id)
+
 }
 
-func (repo *PlantControllerImpl) GetPlants() (entities.Plants, error) {
-	return repo.db.GetPlants()
+func (repo *PlantControllerImpl) GetPlants(c *gin.Context) {
+	repo.db.GetPlants()
 }
 
-func (repo *PlantControllerImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
-	return repo.db.CreatePlant(plant)
+func (repo *PlantControllerImpl) CreatePlant(c *gin.Context) {
+	plant := &entities.Plant{}
+	repo.db.CreatePlant(plant)
 }
 
-func (repo *PlantControllerImpl) DeletePlant(id int) error {
-	return repo.db.DeletePlant(id)
+func (repo *PlantControllerImpl) DeletePlant(c *gin.Context) {
+	id := 1
+	repo.db.DeletePlant(id)
 }
