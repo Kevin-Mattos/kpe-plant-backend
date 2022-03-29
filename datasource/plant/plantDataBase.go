@@ -2,15 +2,18 @@ package plantDS
 
 import (
 	"database/sql"
+	"fmt"
 	"plant_api/entities"
 )
 
 type PlantDatabase interface {
-	GetPlant(userId int) (*entities.Plant, error)
+	GetPlant(id int) (*entities.Plant, error)
 	GetPlants() ([]*entities.Plant, error)
-	CreatePlant(user *entities.Plant) (*entities.Plant, error)
+	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
+
+const table = "teste"
 
 //TODO GENERICS
 
@@ -24,60 +27,59 @@ func CreatePlantDatabase(db *sql.DB) PlantDatabase {
 	return &database
 }
 
-func (database *PlantDataBaseImpl) GetPlant(userId int) (*entities.Plant, error) {
-	userSql := "SELECT id, nome, idade FROM teste where id = $1"
+func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
+	query := fmt.Sprintf("SELECT id, nome, idade FROM %s where id = $1", table)
 
-	var user entities.Plant
+	var plant entities.Plant
 
-	if err := database.db.QueryRow(userSql, userId).Scan(&user.ID, &user.Nome, &user.Idade); err != nil {
+	if err := database.db.QueryRow(query, id).Scan(&plant.ID, &plant.Nome, &plant.Idade); err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &plant, nil
 }
 
 func (repo *PlantDataBaseImpl) GetPlants() ([]*entities.Plant, error) {
-	userSql := "SELECT id, nome, idade FROM teste"
-	// An album slice to hold data from returned rows.
-	var users []*entities.Plant
+	query := fmt.Sprintf("SELECT id, nome, idade FROM %s", table)
 
-	rows, err := repo.db.Query(userSql)
+	var plants []*entities.Plant
+
+	rows, err := repo.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 
-		user := &entities.Plant{}
-		if err := rows.Scan(&user.ID, &user.Nome, &user.Idade); err != nil {
-			return users, err
+		plant := &entities.Plant{}
+		if err := rows.Scan(&plant.ID, &plant.Nome, &plant.Idade); err != nil {
+			return plants, err
 		}
-		users = append(users, user)
+		plants = append(plants, plant)
 	}
 	if err = rows.Err(); err != nil {
-		return users, err
+		return plants, err
 	}
 
-	return users, nil
+	return plants, nil
 }
 
-func (database *PlantDataBaseImpl) CreatePlant(user *entities.Plant) (*entities.Plant, error) {
-	userSql := "INSERT into TESTE(nome, idade) VALUES($1, $2)"
+func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
+	query := fmt.Sprintf("INSERT into %s(nome, idade) VALUES($1, $2)", table)
 
-	_, err := database.db.Exec(userSql, user.Nome, user.Idade)
+	_, err := database.db.Exec(query, plant.Nome, plant.Idade)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return plant, nil
 }
 
 func (database *PlantDataBaseImpl) DeletePlant(id int) error {
-	userSql := "DELETE FROM TESTE where id = $1"
+	query := fmt.Sprintf("DELETE FROM %s where id = $1", table)
 
-	_, err := database.db.Exec(userSql, id)
+	_, err := database.db.Exec(query, id)
 
 	return err
 }

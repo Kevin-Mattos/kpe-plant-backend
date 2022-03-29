@@ -9,9 +9,9 @@ import (
 const table = "details"
 
 type PlantDetailsDatabase interface {
-	GetDetail(userId int) (*entities.Details, error)
+	GetDetail(id int) (*entities.Details, error)
 	GetDetails() ([]*entities.Details, error)
-	CreateDetails(user *entities.Details) (*entities.Details, error)
+	CreateDetails(detail *entities.Details) (*entities.Details, error)
 	DeleteDetails(id int) error
 }
 
@@ -27,61 +27,59 @@ func CreatePlantDatabase(db *sql.DB) PlantDetailsDatabase {
 	return &database
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetail(userId int) (*entities.Details, error) {
-	userSql := fmt.Sprintf("SELECT id, name FROM %s where id = $1", table)
+func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Details, error) {
+	query := fmt.Sprintf("SELECT id, name FROM %s where id = $1", table)
 
-	var user entities.Details
+	var detail entities.Details
 
-	if err := database.db.QueryRow(userSql, userId).Scan(&user.ID, &user.Name); err != nil {
+	if err := database.db.QueryRow(query, id).Scan(&detail.ID, &detail.Name); err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &detail, nil
 }
 
 func (repo *PlantDetailsDataBaseImpl) GetDetails() ([]*entities.Details, error) {
-	userSql := fmt.Sprintf("SELECT id, name FROM %s", table)
+	query := fmt.Sprintf("SELECT id, name FROM %s", table)
 
-	// An album slice to hold data from returned rows.
-	var users []*entities.Details
+	var details []*entities.Details
 
-	rows, err := repo.db.Query(userSql)
+	rows, err := repo.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 
-		user := &entities.Details{}
-		if err := rows.Scan(&user.ID, &user.Name); err != nil {
-			return users, err
+		detail := &entities.Details{}
+		if err := rows.Scan(&detail.ID, &detail.Name); err != nil {
+			return details, err
 		}
-		users = append(users, user)
+		details = append(details, detail)
 	}
 	if err = rows.Err(); err != nil {
-		return users, err
+		return details, err
 	}
 
-	return users, nil
+	return details, nil
 }
 
-func (database *PlantDetailsDataBaseImpl) CreateDetails(user *entities.Details) (*entities.Details, error) {
-	userSql := fmt.Sprintf("INSERT into %s(name) VALUES($1)", table)
+func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Details) (*entities.Details, error) {
+	query := fmt.Sprintf("INSERT into %s(name) VALUES($1)", table)
 
-	_, err := database.db.Exec(userSql, user.Name)
+	_, err := database.db.Exec(query, detail.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return detail, nil
 }
 
 func (database *PlantDetailsDataBaseImpl) DeleteDetails(id int) error {
-	userSql := fmt.Sprintf("DELETE FROM %s where id = $1", table)
+	query := fmt.Sprintf("DELETE FROM %s where id = $1", table)
 
-	_, err := database.db.Exec(userSql, id)
+	_, err := database.db.Exec(query, id)
 
 	return err
 }

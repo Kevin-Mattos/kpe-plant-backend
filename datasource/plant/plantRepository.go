@@ -6,9 +6,9 @@ import (
 )
 
 type PlantRepository interface {
-	GetPlant(userId int) (*entities.Plant, error)
+	GetPlant(id int) (*entities.Plant, error)
 	GetPlants() ([]*entities.Plant, error)
-	CreatePlant(user *entities.Plant) (*entities.Plant, error)
+	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
 
@@ -23,9 +23,9 @@ func CreateRepository(db *sql.DB) PlantRepository {
 	return repos
 }
 
-func (repo *PlantRepositoryImpl) GetPlant(userId int) (*entities.Plant, error) {
+func (repo *PlantRepositoryImpl) GetPlant(id int) (*entities.Plant, error) {
 
-	user, err := repo.db.GetPlant(userId)
+	user, err := repo.db.GetPlant(id)
 	return user, err
 }
 
@@ -33,8 +33,8 @@ func (repo *PlantRepositoryImpl) GetPlants() ([]*entities.Plant, error) {
 	return repo.db.GetPlants()
 }
 
-func (repo *PlantRepositoryImpl) CreatePlant(user *entities.Plant) (*entities.Plant, error) {
-	return repo.db.CreatePlant(user)
+func (repo *PlantRepositoryImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
+	return repo.db.CreatePlant(plant)
 }
 
 func (repo *PlantRepositoryImpl) DeletePlant(id int) error {
