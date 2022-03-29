@@ -1,0 +1,85 @@
+package plantDetailsDS
+
+import (
+	"database/sql"
+	"fmt"
+	"plant_api/entities"
+)
+
+const table = "details"
+
+type PlantDetailsDatabase interface {
+	GetDetail(id int) (*entities.Details, error)
+	GetDetails() ([]*entities.Details, error)
+	CreateDetails(detail *entities.Details) (*entities.Details, error)
+	DeleteDetails(id int) error
+}
+
+//TODO GENERICS
+
+type PlantDetailsDataBaseImpl struct {
+	db *sql.DB
+}
+
+func CreatePlantDatabase(db *sql.DB) PlantDetailsDatabase {
+	database := PlantDetailsDataBaseImpl{}
+	database.db = db
+	return &database
+}
+
+func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Details, error) {
+	query := fmt.Sprintf("SELECT id, name FROM %s where id = $1", table)
+
+	var detail entities.Details
+
+	if err := database.db.QueryRow(query, id).Scan(&detail.ID, &detail.Name); err != nil {
+		return nil, err
+	}
+
+	return &detail, nil
+}
+
+func (repo *PlantDetailsDataBaseImpl) GetDetails() ([]*entities.Details, error) {
+	query := fmt.Sprintf("SELECT id, name FROM %s", table)
+
+	var details []*entities.Details
+
+	rows, err := repo.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+
+		detail := &entities.Details{}
+		if err := rows.Scan(&detail.ID, &detail.Name); err != nil {
+			return details, err
+		}
+		details = append(details, detail)
+	}
+	if err = rows.Err(); err != nil {
+		return details, err
+	}
+
+	return details, nil
+}
+
+func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Details) (*entities.Details, error) {
+	query := fmt.Sprintf("INSERT into %s(name) VALUES($1)", table)
+
+	_, err := database.db.Exec(query, detail.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return detail, nil
+}
+
+func (database *PlantDetailsDataBaseImpl) DeleteDetails(id int) error {
+	query := fmt.Sprintf("DELETE FROM %s where id = $1", table)
+
+	_, err := database.db.Exec(query, id)
+
+	return err
+}
