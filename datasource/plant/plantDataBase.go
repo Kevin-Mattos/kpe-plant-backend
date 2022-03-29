@@ -8,7 +8,7 @@ import (
 
 type PlantDatabase interface {
 	GetPlant(id int) (*entities.Plant, error)
-	GetPlants() ([]*entities.Plant, error)
+	GetPlants() (entities.Plants, error)
 	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
@@ -39,7 +39,7 @@ func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
 	return &plant, nil
 }
 
-func (repo *PlantDataBaseImpl) GetPlants() ([]*entities.Plant, error) {
+func (repo *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
 	query := fmt.Sprintf("SELECT id, nome, idade FROM %s", table)
 
 	var plants []*entities.Plant

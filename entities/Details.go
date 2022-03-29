@@ -1,6 +1,8 @@
 package entities
 
-type Details struct {
+type Details []*Detail
+
+type Detail struct {
 	ID   int
 	Name string
 }

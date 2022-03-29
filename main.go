@@ -36,7 +36,7 @@ func getPlant(repo plantDS.PlantRepository, id int) *entities.Plant {
 	return plant
 }
 
-func getPlants(repo plantDS.PlantRepository) []*entities.Plant {
+func getPlants(repo plantDS.PlantRepository) entities.Plants {
 	plants, _ := repo.GetPlants()
 	return plants
 }
@@ -60,13 +60,13 @@ func deletePlant(repo plantDS.PlantRepository) *entities.Plant {
 	return &plant
 }
 
-func getDetails(repo plantDetailsDS.PlantDetailsRepository) []*entities.Details {
+func getDetails(repo plantDetailsDS.PlantDetailsRepository) entities.Details {
 	details, _ := repo.GetDetails()
 	return details
 }
 
-func createDetails(repo plantDetailsDS.PlantDetailsRepository) *entities.Details {
-	detail := entities.Details{
+func createDetails(repo plantDetailsDS.PlantDetailsRepository) *entities.Detail {
+	detail := entities.Detail{
 		Name: "nominho",
 	}
 

@@ -7,7 +7,7 @@ import (
 
 type PlantRepository interface {
 	GetPlant(id int) (*entities.Plant, error)
-	GetPlants() ([]*entities.Plant, error)
+	GetPlants() (entities.Plants, error)
 	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
@@ -29,7 +29,7 @@ func (repo *PlantRepositoryImpl) GetPlant(id int) (*entities.Plant, error) {
 	return plant, err
 }
 
-func (repo *PlantRepositoryImpl) GetPlants() ([]*entities.Plant, error) {
+func (repo *PlantRepositoryImpl) GetPlants() (entities.Plants, error) {
 	return repo.db.GetPlants()
 }
 

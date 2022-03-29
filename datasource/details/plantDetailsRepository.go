@@ -6,9 +6,9 @@ import (
 )
 
 type PlantDetailsRepository interface {
-	GetDetail(id int) (*entities.Details, error)
-	GetDetails() ([]*entities.Details, error)
-	CreateDetails(detail *entities.Details) (*entities.Details, error)
+	GetDetail(id int) (*entities.Detail, error)
+	GetDetails() (entities.Details, error)
+	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
 }
 
@@ -23,17 +23,17 @@ func CreatePlantDetailsRepository(db *sql.DB) PlantDetailsRepository {
 	return repos
 }
 
-func (repo *PlantDetailsRepositoryImpl) GetDetail(id int) (*entities.Details, error) {
+func (repo *PlantDetailsRepositoryImpl) GetDetail(id int) (*entities.Detail, error) {
 
 	detail, err := repo.db.GetDetail(id)
 	return detail, err
 }
 
-func (repo *PlantDetailsRepositoryImpl) GetDetails() ([]*entities.Details, error) {
+func (repo *PlantDetailsRepositoryImpl) GetDetails() (entities.Details, error) {
 	return repo.db.GetDetails()
 }
 
-func (repo *PlantDetailsRepositoryImpl) CreateDetails(detail *entities.Details) (*entities.Details, error) {
+func (repo *PlantDetailsRepositoryImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {
 	return repo.db.CreateDetails(detail)
 }
 
