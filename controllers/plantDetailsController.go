@@ -6,38 +6,38 @@ import (
 	"plant_api/entities"
 )
 
-type PlantDetailsRepository interface {
+type PlantDetailsController interface {
 	GetDetail(id int) (*entities.Detail, error)
 	GetDetails() (entities.Details, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
 }
 
-type PlantDetailsRepositoryImpl struct {
+type PlantDetailsControllerImpl struct {
 	db datasource.PlantDetailsDatabase
 }
 
-func CreatePlantDetailsRepository(db *sql.DB) PlantDetailsRepository {
-	repos := &PlantDetailsRepositoryImpl{}
+func CreatePlantDetailsController(db *sql.DB) PlantDetailsController {
+	repos := &PlantDetailsControllerImpl{}
 
 	repos.db = datasource.CreatePlantDetailsDatabase(db)
 	return repos
 }
 
-func (repo *PlantDetailsRepositoryImpl) GetDetail(id int) (*entities.Detail, error) {
+func (repo *PlantDetailsControllerImpl) GetDetail(id int) (*entities.Detail, error) {
 
 	detail, err := repo.db.GetDetail(id)
 	return detail, err
 }
 
-func (repo *PlantDetailsRepositoryImpl) GetDetails() (entities.Details, error) {
+func (repo *PlantDetailsControllerImpl) GetDetails() (entities.Details, error) {
 	return repo.db.GetDetails()
 }
 
-func (repo *PlantDetailsRepositoryImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {
+func (repo *PlantDetailsControllerImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {
 	return repo.db.CreateDetails(detail)
 }
 
-func (repo *PlantDetailsRepositoryImpl) DeleteDetails(id int) error {
+func (repo *PlantDetailsControllerImpl) DeleteDetails(id int) error {
 	return repo.db.DeleteDetails(id)
 }

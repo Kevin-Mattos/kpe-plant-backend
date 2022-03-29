@@ -13,8 +13,8 @@ func main() {
 
 	db := datasource.CreateDatabase()
 	defer datasource.Close()
-	repo := controllers.CreateRepository(db)
-	detailsRepo := controllers.CreatePlantDetailsRepository(db)
+	repo := controllers.CreateController(db)
+	detailsRepo := controllers.CreatePlantDetailsController(db)
 
 	// createDetails(detailsRepo)
 	a := getDetails(detailsRepo)
@@ -30,17 +30,17 @@ func main() {
 
 }
 
-func getPlant(repo controllers.PlantRepository, id int) *entities.Plant {
+func getPlant(repo controllers.PlantController, id int) *entities.Plant {
 	plant, _ := repo.GetPlant(id)
 	return plant
 }
 
-func getPlants(repo controllers.PlantRepository) entities.Plants {
+func getPlants(repo controllers.PlantController) entities.Plants {
 	plants, _ := repo.GetPlants()
 	return plants
 }
 
-func createPlant(repo controllers.PlantRepository) *entities.Plant {
+func createPlant(repo controllers.PlantController) *entities.Plant {
 	plant := entities.Plant{
 		Nome:  "nominho",
 		Idade: 123,
@@ -50,7 +50,7 @@ func createPlant(repo controllers.PlantRepository) *entities.Plant {
 	return &plant
 }
 
-func deletePlant(repo controllers.PlantRepository) *entities.Plant {
+func deletePlant(repo controllers.PlantController) *entities.Plant {
 	plant := entities.Plant{
 		ID: 3,
 	}
@@ -59,12 +59,12 @@ func deletePlant(repo controllers.PlantRepository) *entities.Plant {
 	return &plant
 }
 
-func getDetails(repo controllers.PlantDetailsRepository) entities.Details {
+func getDetails(repo controllers.PlantDetailsController) entities.Details {
 	details, _ := repo.GetDetails()
 	return details
 }
 
-func createDetails(repo controllers.PlantDetailsRepository) *entities.Detail {
+func createDetails(repo controllers.PlantDetailsController) *entities.Detail {
 	detail := entities.Detail{
 		Name: "nominho",
 	}
