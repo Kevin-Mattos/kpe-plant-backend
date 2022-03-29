@@ -1,7 +1,8 @@
-package plantDetailsDS
+package controllers
 
 import (
 	"database/sql"
+	"plant_api/datasource"
 	"plant_api/entities"
 )
 
@@ -13,13 +14,13 @@ type PlantDetailsRepository interface {
 }
 
 type PlantDetailsRepositoryImpl struct {
-	db PlantDetailsDatabase
+	db datasource.PlantDetailsDatabase
 }
 
 func CreatePlantDetailsRepository(db *sql.DB) PlantDetailsRepository {
 	repos := &PlantDetailsRepositoryImpl{}
 
-	repos.db = CreatePlantDatabase(db)
+	repos.db = datasource.CreatePlantDetailsDatabase(db)
 	return repos
 }
 

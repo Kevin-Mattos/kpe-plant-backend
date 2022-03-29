@@ -1,4 +1,4 @@
-package plantDetailsDS
+package datasource
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 	"plant_api/entities"
 )
 
-const table = "details"
+const detailsTable = "details"
 
 type PlantDetailsDatabase interface {
 	GetDetail(id int) (*entities.Detail, error)
@@ -21,14 +21,14 @@ type PlantDetailsDataBaseImpl struct {
 	db *sql.DB
 }
 
-func CreatePlantDatabase(db *sql.DB) PlantDetailsDatabase {
+func CreatePlantDetailsDatabase(db *sql.DB) PlantDetailsDatabase {
 	database := PlantDetailsDataBaseImpl{}
 	database.db = db
 	return &database
 }
 
 func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Detail, error) {
-	query := fmt.Sprintf("SELECT id, name FROM %s where id = $1", table)
+	query := fmt.Sprintf("SELECT id, name FROM %s where id = $1", detailsTable)
 
 	var detail entities.Detail
 
@@ -40,7 +40,7 @@ func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Detail, e
 }
 
 func (repo *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
-	query := fmt.Sprintf("SELECT id, name FROM %s", table)
+	query := fmt.Sprintf("SELECT id, name FROM %s", detailsTable)
 
 	var details []*entities.Detail
 
@@ -66,7 +66,7 @@ func (repo *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
 }
 
 func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {
-	query := fmt.Sprintf("INSERT into %s(name) VALUES($1)", table)
+	query := fmt.Sprintf("INSERT into %s(name) VALUES($1)", detailsTable)
 
 	_, err := database.db.Exec(query, detail.Name)
 	if err != nil {
@@ -77,7 +77,7 @@ func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail)
 }
 
 func (database *PlantDetailsDataBaseImpl) DeleteDetails(id int) error {
-	query := fmt.Sprintf("DELETE FROM %s where id = $1", table)
+	query := fmt.Sprintf("DELETE FROM %s where id = $1", detailsTable)
 
 	_, err := database.db.Exec(query, id)
 
