@@ -25,8 +25,8 @@ func CreatePlantDetailsRepository(db *sql.DB) PlantDetailsRepository {
 
 func (repo *PlantDetailsRepositoryImpl) GetDetail(id int) (*entities.Details, error) {
 
-	user, err := repo.db.GetDetail(id)
-	return user, err
+	detail, err := repo.db.GetDetail(id)
+	return detail, err
 }
 
 func (repo *PlantDetailsRepositoryImpl) GetDetails() ([]*entities.Details, error) {

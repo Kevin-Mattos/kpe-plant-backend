@@ -25,8 +25,8 @@ func CreateRepository(db *sql.DB) PlantRepository {
 
 func (repo *PlantRepositoryImpl) GetPlant(id int) (*entities.Plant, error) {
 
-	user, err := repo.db.GetPlant(id)
-	return user, err
+	plant, err := repo.db.GetPlant(id)
+	return plant, err
 }
 
 func (repo *PlantRepositoryImpl) GetPlants() ([]*entities.Plant, error) {
