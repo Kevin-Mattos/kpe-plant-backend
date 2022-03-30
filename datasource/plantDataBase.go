@@ -1,4 +1,4 @@
-package plantDS
+package datasource
 
 import (
 	"database/sql"
@@ -8,12 +8,12 @@ import (
 
 type PlantDatabase interface {
 	GetPlant(id int) (*entities.Plant, error)
-	GetPlants() ([]*entities.Plant, error)
+	GetPlants() (entities.Plants, error)
 	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
 
-const table = "teste"
+const plantsTable = "teste"
 
 //TODO GENERICS
 
@@ -28,7 +28,7 @@ func CreatePlantDatabase(db *sql.DB) PlantDatabase {
 }
 
 func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
-	query := fmt.Sprintf("SELECT id, nome, idade FROM %s where id = $1", table)
+	query := fmt.Sprintf("SELECT id, nome, idade FROM %s where id = $1", plantsTable)
 
 	var plant entities.Plant
 
@@ -39,8 +39,8 @@ func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
 	return &plant, nil
 }
 
-func (repo *PlantDataBaseImpl) GetPlants() ([]*entities.Plant, error) {
-	query := fmt.Sprintf("SELECT id, nome, idade FROM %s", table)
+func (repo *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
+	query := fmt.Sprintf("SELECT id, nome, idade FROM %s", plantsTable)
 
 	var plants []*entities.Plant
 
@@ -66,7 +66,7 @@ func (repo *PlantDataBaseImpl) GetPlants() ([]*entities.Plant, error) {
 }
 
 func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
-	query := fmt.Sprintf("INSERT into %s(nome, idade) VALUES($1, $2)", table)
+	query := fmt.Sprintf("INSERT into %s(nome, idade) VALUES($1, $2)", plantsTable)
 
 	_, err := database.db.Exec(query, plant.Nome, plant.Idade)
 	if err != nil {
@@ -77,7 +77,7 @@ func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities
 }
 
 func (database *PlantDataBaseImpl) DeletePlant(id int) error {
-	query := fmt.Sprintf("DELETE FROM %s where id = $1", table)
+	query := fmt.Sprintf("DELETE FROM %s where id = $1", plantsTable)
 
 	_, err := database.db.Exec(query, id)
 
