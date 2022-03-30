@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"database/sql"
+	"net/http"
 	"plant_api/datasource"
 	"plant_api/entities"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,29 +20,64 @@ type PlantDetailsControllerImpl struct {
 	db datasource.PlantDetailsDatabase
 }
 
-func CreatePlantDetailsController(db *sql.DB) PlantDetailsController {
-	repos := &PlantDetailsControllerImpl{}
-
-	repos.db = datasource.CreatePlantDetailsDatabase(db)
-	return repos
+func CreatePlantDetailsController(db datasource.PlantDetailsDatabase) PlantDetailsController {
+	return &PlantDetailsControllerImpl{
+		db: db,
+	}
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
-	id := 3
-	repo.db.GetDetail(id)
+	idStr := c.Param("id")
 
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	detail, err := repo.db.GetDetail(id)
+
+	//	todo verify 404
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, detail)
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetails(c *gin.Context) {
-	repo.db.GetDetails()
+
+	details, err := repo.db.GetDetails()
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, details)
+
 }
 
 func (repo *PlantDetailsControllerImpl) CreateDetails(c *gin.Context) {
-	detail := &entities.Detail{}
-	repo.db.CreateDetails(detail)
+	var detail entities.Detail
+	if err := c.ShouldBind(&detail); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo.db.CreateDetails(&detail)
+
+	c.Status(http.StatusCreated)
 }
 
 func (repo *PlantDetailsControllerImpl) DeleteDetails(c *gin.Context) {
-	id := 3
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	repo.db.DeleteDetails(id)
 }
