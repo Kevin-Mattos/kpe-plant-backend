@@ -3,24 +3,22 @@ package infra
 import (
 	"database/sql"
 	"plant_api/controllers"
+	"plant_api/datasource"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Dispatch(db *sql.DB) {
 
-	plantController := controllers.CreatePlantController(db)
-	detailsController := controllers.CreatePlantDetailsController(db)
+	plantController := controllers.CreatePlantController(datasource.CreatePlantDatabase(db))
+	detailsController := controllers.CreatePlantDetailsController(datasource.CreatePlantDetailsDatabase(db))
 
 	router := gin.Default()
 
 	setPlantRoutes(router, plantController)
 	setDetailsRoutes(router, detailsController)
 
-	// By default it serves on :8080 unless a
-	// PORT environment variable was defined.
 	router.Run()
-	// router.Run(":3000") for a hard coded port
 }
 
 func setPlantRoutes(router *gin.Engine, controller controllers.PlantController) {
