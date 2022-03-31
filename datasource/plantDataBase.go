@@ -1,9 +1,10 @@
 package datasource
 
 import (
-	"database/sql"
 	"fmt"
 	"plant_api/entities"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type PlantDatabase interface {
@@ -18,57 +19,48 @@ const plantsTable = "teste"
 //TODO GENERICS
 
 type PlantDataBaseImpl struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func CreatePlantDatabase(db *sql.DB) PlantDatabase {
+func CreatePlantDatabase(db *sqlx.DB) PlantDatabase {
 	database := PlantDataBaseImpl{}
 	database.db = db
 	return &database
 }
 
 func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
-	query := fmt.Sprintf("SELECT id, nome, idade FROM %s where id = $1", plantsTable)
+	query := fmt.Sprintf("SELECT * FROM %s where id = $1", plantsTable)
 
 	var plant entities.Plant
 
-	if err := database.db.QueryRow(query, id).Scan(&plant.ID, &plant.Nome, &plant.Idade); err != nil {
+	if err := database.db.Get(&plant, query, id); err != nil {
 		return nil, err
 	}
 
 	return &plant, nil
 }
 
-func (repo *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
-	query := fmt.Sprintf("SELECT id, nome, idade FROM %s", plantsTable)
+func (database *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", plantsTable)
 
-	var plants []*entities.Plant
+	var plants entities.Plants
 
-	rows, err := repo.db.Query(query)
+	err := database.db.Select(&plants, query)
 	if err != nil {
 		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-
-		plant := &entities.Plant{}
-		if err := rows.Scan(&plant.ID, &plant.Nome, &plant.Idade); err != nil {
-			return plants, err
-		}
-		plants = append(plants, plant)
-	}
-	if err = rows.Err(); err != nil {
-		return plants, err
 	}
 
 	return plants, nil
 }
 
 func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
-	query := fmt.Sprintf("INSERT into %s(nome, idade) VALUES($1, $2)", plantsTable)
+	query := fmt.Sprintf("INSERT into %s(nome, idade) VALUES(:nome, :idade)", plantsTable)
 
-	_, err := database.db.Exec(query, plant.Nome, plant.Idade)
+	tx := database.db.MustBegin()
+
+	tx.NamedExec(query, plant)
+	err := tx.Commit()
+
 	if err != nil {
 		return nil, err
 	}

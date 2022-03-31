@@ -1,14 +1,14 @@
 package infra
 
 import (
-	"database/sql"
 	"plant_api/controllers"
 	"plant_api/datasource"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 )
 
-func Dispatch(db *sql.DB) {
+func Dispatch(db *sqlx.DB) {
 
 	plantController := controllers.CreatePlantController(datasource.CreatePlantDatabase(db))
 	detailsController := controllers.CreatePlantDetailsController(datasource.CreatePlantDetailsDatabase(db))

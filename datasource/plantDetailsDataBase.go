@@ -1,9 +1,10 @@
 package datasource
 
 import (
-	"database/sql"
 	"fmt"
 	"plant_api/entities"
+
+	"github.com/jmoiron/sqlx"
 )
 
 const detailsTable = "details"
@@ -18,57 +19,47 @@ type PlantDetailsDatabase interface {
 //TODO GENERICS
 
 type PlantDetailsDataBaseImpl struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func CreatePlantDetailsDatabase(db *sql.DB) PlantDetailsDatabase {
+func CreatePlantDetailsDatabase(db *sqlx.DB) PlantDetailsDatabase {
 	database := PlantDetailsDataBaseImpl{}
 	database.db = db
 	return &database
 }
 
 func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Detail, error) {
-	query := fmt.Sprintf("SELECT id, name FROM %s where id = $1", detailsTable)
+	query := fmt.Sprintf("SELECT * FROM %s where id = $1", detailsTable)
 
 	var detail entities.Detail
 
-	if err := database.db.QueryRow(query, id).Scan(&detail.ID, &detail.Name); err != nil {
+	if err := database.db.Get(&detail, query, id); err != nil {
 		return nil, err
 	}
 
 	return &detail, nil
 }
 
-func (repo *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
-	query := fmt.Sprintf("SELECT id, name FROM %s", detailsTable)
+func (database *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", detailsTable)
 
-	var details []*entities.Detail
+	var details entities.Details
 
-	rows, err := repo.db.Query(query)
+	err := database.db.Select(&details, query)
 	if err != nil {
 		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-
-		detail := &entities.Detail{}
-		if err := rows.Scan(&detail.ID, &detail.Name); err != nil {
-			return details, err
-		}
-		details = append(details, detail)
-	}
-	if err = rows.Err(); err != nil {
-		return details, err
 	}
 
 	return details, nil
 }
 
 func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {
-	query := fmt.Sprintf("INSERT into %s(name) VALUES($1)", detailsTable)
+	query := fmt.Sprintf("INSERT into %s(name) VALUES(:name)", detailsTable)
 
-	_, err := database.db.Exec(query, detail.Name)
+	tx := database.db.MustBegin()
+
+	tx.NamedExec(query, detail)
+	err := tx.Commit()
 	if err != nil {
 		return nil, err
 	}
