@@ -37,3 +37,27 @@ func Connect() {
 func Close() {
 	db.Close()
 }
+
+type DBTeste interface {
+	GetById(id int) any
+	// GetAll() any
+	// Create(id int) any
+	// Delete(id int) any
+}
+
+type Teste struct {
+	db *sqlx.DB
+}
+
+func GetById[T any](database Teste, id int, table string) (T, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", table)
+
+	var details T
+
+	err := database.db.Select(&details, query)
+	if err != nil {
+		return details, err
+	}
+
+	return details, nil
+}

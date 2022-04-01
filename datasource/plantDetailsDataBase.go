@@ -41,16 +41,22 @@ func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Detail, e
 }
 
 func (database *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
-	query := fmt.Sprintf("SELECT * FROM %s", detailsTable)
-
-	var details entities.Details
-
-	err := database.db.Select(&details, query)
-	if err != nil {
-		return nil, err
+	test := Teste{
+		db: database.db,
 	}
 
-	return details, nil
+	return GetById[entities.Details](test, 3, detailsTable)
+
+	// query := fmt.Sprintf("SELECT * FROM %s", detailsTable)
+
+	// var details entities.Details
+
+	// err := database.db.Select(&details, query)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return details, nil
 }
 
 func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {

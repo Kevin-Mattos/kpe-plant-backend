@@ -41,16 +41,21 @@ func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
 }
 
 func (database *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
-	query := fmt.Sprintf("SELECT * FROM %s", plantsTable)
-
-	var plants entities.Plants
-
-	err := database.db.Select(&plants, query)
-	if err != nil {
-		return nil, err
+	test := Teste{
+		db: database.db,
 	}
 
-	return plants, nil
+	return GetById[entities.Plants](test, 3, plantsTable)
+	// query := fmt.Sprintf("SELECT * FROM %s", plantsTable)
+
+	// var plants entities.Plants
+
+	// err := database.db.Select(&plants, query)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return plants, nil
 }
 
 func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
