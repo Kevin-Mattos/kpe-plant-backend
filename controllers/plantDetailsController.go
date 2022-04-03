@@ -27,10 +27,9 @@ func CreatePlantDetailsController(db datasource.PlantDetailsDatabase) PlantDetai
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
-	idStr := c.Param("id")
+	strId := c.Param("id")
 
-	id, err := strconv.Atoi(idStr)
-
+	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

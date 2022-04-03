@@ -6,11 +6,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const detailsTable = "details"
+const detailsTable = "detail"
 
 type PlantDetailsDatabase interface {
-	GetDetail(id int) (*entities.Detail, error)
-	GetDetails() (*entities.Details, error)
+	GetDetail(id int64) (*entities.Detail, error)
+	GetDetails() (entities.Details, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
 }
@@ -27,12 +27,12 @@ func CreatePlantDetailsDatabase(db *sqlx.DB) PlantDetailsDatabase {
 	return &database
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetail(id int) (*entities.Detail, error) {
+func (database *PlantDetailsDataBaseImpl) GetDetail(id int64) (*entities.Detail, error) {
 	return GetById[entities.Detail](database.db, detailsTable, id)
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetails() (*entities.Details, error) {
-	return GetAll[entities.Details](database.db, detailsTable)
+func (database *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
+	return GetAll[entities.Detail](database.db, detailsTable)
 }
 
 func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {

@@ -10,10 +10,6 @@ import (
 
 var db *sqlx.DB
 
-var schema = `
-	CREATE TABLE IF NOT EXISTS DETAILS(id serial, name text)
-`
-
 func CreateDatabase() *sqlx.DB {
 	Connect()
 	return db
@@ -32,17 +28,16 @@ func Connect() {
 	} else {
 		fmt.Println("Connected!")
 	}
-	db.Exec(schema)
 }
 
 func Close() {
 	db.Close()
 }
 
-func GetAll[T any](database *sqlx.DB, table string) (*T, error) {
+func GetAll[T any](database *sqlx.DB, table string) (*[]*T, error) {
 	query := fmt.Sprintf("SELECT * FROM %s", table)
 
-	var obj T
+	obj := make([]*T, 0)
 
 	err := database.Select(&obj, query)
 	if err != nil {
@@ -52,7 +47,7 @@ func GetAll[T any](database *sqlx.DB, table string) (*T, error) {
 	return &obj, nil
 }
 
-func GetById[T any](database *sqlx.DB, table string, id int) (*T, error) {
+func GetById[T any](database *sqlx.DB, table string, id int64) (*T, error) {
 	var obj T
 	query := fmt.Sprintf("SELECT * FROM %s where %s = $1", table, GetDatabaseIdTag(&obj))
 
