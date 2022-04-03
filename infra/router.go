@@ -18,7 +18,10 @@ func Dispatch(db *sqlx.DB) {
 	setPlantRoutes(router, plantController)
 	setDetailsRoutes(router, detailsController)
 
-	router.Run()
+	err := router.Run()
+	if err != nil {
+		panic(err.Error())
+	}
 }
 
 func setPlantRoutes(router *gin.Engine, controller controllers.PlantController) {
