@@ -8,12 +8,12 @@ import (
 
 type PlantDatabase interface {
 	GetPlant(id int) (*entities.Plant, error)
-	GetPlants() (*entities.Plants, error)
+	GetPlants() (entities.Plants, error)
 	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
 
-const plantsTable = "teste"
+const plantsTable = "plant"
 
 //TODO GENERICS
 
@@ -32,8 +32,8 @@ func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
 	return GetById[entities.Plant](database.db, plantsTable, id)
 }
 
-func (database *PlantDataBaseImpl) GetPlants() (*entities.Plants, error) {
-	return GetAll[entities.Plants](database.db, plantsTable)
+func (database *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
+	return GetAll[entities.Plant](database.db, plantsTable)
 }
 
 func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
@@ -41,5 +41,5 @@ func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities
 }
 
 func (database *PlantDataBaseImpl) DeletePlant(id int) error {
-	return Delete(database.db, plantsTable, id)
+	return Delete[entities.Plant](database.db, plantsTable, id)
 }
