@@ -66,8 +66,11 @@ func (repo *PlantDetailsControllerImpl) CreateDetails(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo.db.CreateDetails(&detail)
-
+	_, err := repo.db.CreateDetails(&detail)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.Status(http.StatusCreated)
 }
 
@@ -79,5 +82,9 @@ func (repo *PlantDetailsControllerImpl) DeleteDetails(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo.db.DeleteDetails(id)
+	err = repo.db.DeleteDetails(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }
