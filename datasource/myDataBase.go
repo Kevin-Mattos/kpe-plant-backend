@@ -68,7 +68,6 @@ func Create[T any](database *sqlx.DB, table string, obj *T) (*T, error) {
 	columns := strings.Join(fields, ",")
 	values := fmt.Sprintf(":%s", strings.Join(fields, ",:"))
 
-	print(columns, values)
 	query := fmt.Sprintf("INSERT into %s(%s) VALUES(%s)", table, columns, values)
 
 	tx := database.MustBegin()
@@ -93,7 +92,7 @@ func Delete[T any](database *sqlx.DB, table string, id int) error {
 	result, err := database.Exec(query, id)
 	affected, _ := result.RowsAffected()
 
-	//
+	// todo 404
 	if affected == 0 {
 		return fmt.Errorf("Not Affected")
 	}

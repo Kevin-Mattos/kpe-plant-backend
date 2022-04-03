@@ -42,7 +42,3 @@ func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail)
 func (database *PlantDetailsDataBaseImpl) DeleteDetails(id int) error {
 	return Delete[entities.Detail](database.db, detailsTable, id)
 }
-
-//umidade e temp externa
-//umidade interna
-//luminosidade
