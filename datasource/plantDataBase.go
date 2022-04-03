@@ -7,7 +7,7 @@ import (
 )
 
 type PlantDatabase interface {
-	GetPlant(id int) (*entities.Plant, error)
+	GetPlant(id string) (*entities.Plant, error)
 	GetPlants() (entities.Plants, error)
 	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
@@ -27,7 +27,7 @@ func CreatePlantDatabase(db *sqlx.DB) PlantDatabase {
 	return &database
 }
 
-func (database *PlantDataBaseImpl) GetPlant(id int) (*entities.Plant, error) {
+func (database *PlantDataBaseImpl) GetPlant(id string) (*entities.Plant, error) {
 
 	return GetById[entities.Plant](database.db, plantsTable, id)
 }

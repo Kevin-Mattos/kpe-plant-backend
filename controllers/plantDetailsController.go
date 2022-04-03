@@ -27,15 +27,7 @@ func CreatePlantDetailsController(db datasource.PlantDetailsDatabase) PlantDetai
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
-	idStr := c.Param("id")
-
-	id, err := strconv.Atoi(idStr)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+	id := c.Param("id")
 	detail, err := repo.db.GetDetail(id)
 
 	//	todo verify 404

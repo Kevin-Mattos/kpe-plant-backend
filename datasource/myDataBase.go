@@ -47,7 +47,7 @@ func GetAll[T any](database *sqlx.DB, table string) (*[]*T, error) {
 	return &obj, nil
 }
 
-func GetById[T any](database *sqlx.DB, table string, id int) (*T, error) {
+func GetById[T any](database *sqlx.DB, table string, id string) (*T, error) {
 	var obj T
 	query := fmt.Sprintf("SELECT * FROM %s where %s = $1", table, GetDatabaseIdTag(&obj))
 
