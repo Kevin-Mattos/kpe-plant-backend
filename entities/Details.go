@@ -1,8 +1,15 @@
 package entities
 
-type Details []*Detail
+import "time"
+
+type Details *[]*Detail
 
 type Detail struct {
-	ID   int    `json:"id" db:"id"`
-	Name string `json:"name" db:"name" binding:"required"`
+	ID               int       `json:"id" db:"id_detail"`
+	PlantId          int       `json:"plantId" db:"id_plant" binding:"required"`
+	Time             time.Time `json:"time" db:"time"`
+	InternalHumidity float32   `json:"internalHumidity" db:"internal_humidity" binding:"required"`
+	ExternalHumidity float32   `json:"externalHumidity" db:"external_humidity" binding:"required"`
+	Temperature      float32   `json:"temperature" db:"temp" binding:"required"`
+	Luminosity       float32   `json:"luminosity" db:"luminosity" binding:"required"`
 }
