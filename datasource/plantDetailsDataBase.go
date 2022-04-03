@@ -9,7 +9,7 @@ import (
 const detailsTable = "detail"
 
 type PlantDetailsDatabase interface {
-	GetDetail(id string) (*entities.Detail, error)
+	GetDetail(id int64) (*entities.Detail, error)
 	GetDetails() (entities.Details, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
@@ -27,7 +27,7 @@ func CreatePlantDetailsDatabase(db *sqlx.DB) PlantDetailsDatabase {
 	return &database
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetail(id string) (*entities.Detail, error) {
+func (database *PlantDetailsDataBaseImpl) GetDetail(id int64) (*entities.Detail, error) {
 	return GetById[entities.Detail](database.db, detailsTable, id)
 }
 

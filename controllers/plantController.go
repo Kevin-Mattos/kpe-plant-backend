@@ -27,7 +27,13 @@ func CreatePlantController(db datasource.PlantDatabase) PlantController {
 }
 
 func (repo *PlantControllerImpl) GetPlant(c *gin.Context) {
-	id := c.Param("id")
+	strId := c.Param("id")
+
+	id, err := strconv.ParseInt(strId, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	plant, err := repo.db.GetPlant(id)
 	if err != nil {
