@@ -10,7 +10,7 @@ const detailsTable = "detail"
 
 type PlantDetailsDatabase interface {
 	GetDetail(id int64) (*entities.Detail, error)
-	GetDetails(filters *map[string]any) (*[]*entities.Detail, error)
+	GetDetails() (*[]*entities.Detail, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
 }
