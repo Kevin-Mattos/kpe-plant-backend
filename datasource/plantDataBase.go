@@ -8,7 +8,7 @@ import (
 
 type PlantDatabase interface {
 	GetPlant(id int64) (*entities.Plant, error)
-	GetPlants() (entities.Plants, error)
+	GetPlants() (*[]*entities.Plant, error)
 	CreatePlant(plant *entities.Plant) (*entities.Plant, error)
 	DeletePlant(id int) error
 }
@@ -31,7 +31,7 @@ func (database *PlantDataBaseImpl) GetPlant(id int64) (*entities.Plant, error) {
 	return GetById[entities.Plant](database.db, plantsTable, id)
 }
 
-func (database *PlantDataBaseImpl) GetPlants() (entities.Plants, error) {
+func (database *PlantDataBaseImpl) GetPlants() (*[]*entities.Plant, error) {
 	return GetAll[entities.Plant](database.db, plantsTable)
 }
 

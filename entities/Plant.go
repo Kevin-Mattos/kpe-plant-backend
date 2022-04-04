@@ -1,7 +1,5 @@
 package entities
 
-type Plants *[]*Plant
-
 type Plant struct {
 	ID      int    `json:"id" db:"id_plant"`
 	Name    string `json:"name" db:"name" binding:"required"`

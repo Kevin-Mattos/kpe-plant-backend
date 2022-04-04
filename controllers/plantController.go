@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"net/http"
+	"github.com/gin-gonic/gin"
 	"plant_api/datasource"
 	"plant_api/entities"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 type PlantController interface {
@@ -27,65 +24,17 @@ func CreatePlantController(db datasource.PlantDatabase) PlantController {
 }
 
 func (repo *PlantControllerImpl) GetPlant(c *gin.Context) {
-	strId := c.Param("id")
-
-	id, err := strconv.ParseInt(strId, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	plant, err := repo.db.GetPlant(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, plant)
+	Get[entities.Plant](c, repo.db.GetPlant)
 }
 
 func (repo *PlantControllerImpl) GetPlants(c *gin.Context) {
-	plants, err := repo.db.GetPlants()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, plants)
+	GetAll[entities.Plant](c, repo.db.GetPlants)
 }
 
 func (repo *PlantControllerImpl) CreatePlant(c *gin.Context) {
-
-	var plant entities.Plant
-	if err := c.ShouldBind(&plant); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	_, err := repo.db.CreatePlant(&plant)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.Status(http.StatusCreated)
+	Create[entities.Plant](c, repo.db.CreatePlant)
 }
 
 func (repo *PlantControllerImpl) DeletePlant(c *gin.Context) {
-	idStr := c.Param("id")
-
-	id, err := strconv.Atoi(idStr)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = repo.db.DeletePlant(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	Delete(c, repo.db.DeletePlant)
 }
