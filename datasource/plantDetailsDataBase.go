@@ -10,7 +10,7 @@ const detailsTable = "detail"
 
 type PlantDetailsDatabase interface {
 	GetDetail(id int64) (*entities.Detail, error)
-	GetDetails() (entities.Details, error)
+	GetDetails(filters *map[string]any) (*[]*entities.Detail, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
 }
@@ -31,8 +31,8 @@ func (database *PlantDetailsDataBaseImpl) GetDetail(id int64) (*entities.Detail,
 	return GetById[entities.Detail](database.db, detailsTable, id)
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetails() (entities.Details, error) {
-	return GetAll[entities.Detail](database.db, detailsTable)
+func (database *PlantDetailsDataBaseImpl) GetDetails() (*[]*entities.Detail, error) {
+	return GetAll[entities.Detail](database.db, detailsTable) //Filter[entities.Detail](database.db, detailsTable, filter)
 }
 
 func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {
