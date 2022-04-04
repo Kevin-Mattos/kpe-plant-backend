@@ -9,8 +9,8 @@ import (
 const detailsTable = "detail"
 
 type PlantDetailsDatabase interface {
-	GetDetail(id int64) (*entities.Detail, error)
-	GetDetails() (*[]*entities.Detail, error)
+	GetDetail(id int64, filters *map[string]any) (*entities.Detail, error)
+	GetDetails(filters *map[string]any) (*[]*entities.Detail, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
 	DeleteDetails(id int) error
 }
@@ -27,12 +27,22 @@ func CreatePlantDetailsDatabase(db *sqlx.DB) PlantDetailsDatabase {
 	return &database
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetail(id int64) (*entities.Detail, error) {
-	return GetById[entities.Detail](database.db, detailsTable, id)
+func (database *PlantDetailsDataBaseImpl) GetDetail(id int64, filters *map[string]any) (*entities.Detail, error) {
+
+	if filters == nil {
+		return GetById[entities.Detail](database.db, detailsTable, id)
+	} else {
+		return FilterOne[entities.Detail](database.db, detailsTable, filters)
+	}
+
 }
 
-func (database *PlantDetailsDataBaseImpl) GetDetails() (*[]*entities.Detail, error) {
-	return GetAll[entities.Detail](database.db, detailsTable) //Filter[entities.Detail](database.db, detailsTable, filter)
+func (database *PlantDetailsDataBaseImpl) GetDetails(filters *map[string]any) (*[]*entities.Detail, error) {
+	if filters == nil {
+		return GetAll[entities.Detail](database.db, detailsTable)
+	} else {
+		return Filter[entities.Detail](database.db, detailsTable, filters)
+	}
 }
 
 func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail) (*entities.Detail, error) {

@@ -36,7 +36,7 @@ func (database *PlantDataBaseImpl) GetPlants() (*[]*entities.Plant, error) {
 }
 
 func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
-	return Create(database.db, plantsTable, plant)
+	return Create[entities.Plant](database.db, plantsTable, plant)
 }
 
 func (database *PlantDataBaseImpl) DeletePlant(id int) error {

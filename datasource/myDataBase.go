@@ -57,6 +57,73 @@ func GetById[T any](database *sqlx.DB, table string, id int64) (*T, error) {
 	return &obj, nil
 }
 
+func FilterOne[T any](database *sqlx.DB, table string, filters *map[string]any) (*T, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", table)
+
+	keys := GetKeys(*filters)
+	values := GetValues(*filters)
+
+	query = fmt.Sprintf("%s WHERE %s", query, JoinWhereClauses(keys))
+	println(query)
+	var obj T
+	err := database.Get(&obj, query, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &obj, nil
+}
+
+func Filter[T any](database *sqlx.DB, table string, filters *map[string]any) (*[]*T, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", table)
+
+	keys := GetKeys(*filters)
+	values := GetValues(*filters)
+
+	query = fmt.Sprintf("%s WHERE %s", query, JoinWhereClauses(keys))
+	print(query)
+	obj := make([]*T, 0)
+	err := database.Select(&obj, query, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &obj, nil
+}
+
+func GetKeys(filters map[string]any) []string {
+	keys := make([]string, len(filters))
+
+	i := 0
+	for k := range filters {
+		keys[i] = k
+		i++
+	}
+
+	return keys
+}
+
+func GetValues(filters map[string]any) []any {
+	values := make([]any, len(filters))
+	i := 0
+	for k := range filters {
+		values[i] = filters[k]
+		fmt.Printf("%s\n", values[i])
+		i++
+	}
+
+	return values
+}
+
+func JoinWhereClauses(keys []string) string {
+	whereClauses := make([]string, len(keys))
+
+	for i := range keys {
+		whereClauses[i] = fmt.Sprintf("%s = $%d", keys[i], i+1)
+	}
+	return strings.Join(whereClauses, " AND ")
+}
+
 func Create[T any](database *sqlx.DB, table string, obj *T) (*T, error) {
 
 	fields := GetDatabaseTagsWithoutId(obj)

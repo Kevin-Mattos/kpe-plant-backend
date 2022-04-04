@@ -32,8 +32,8 @@ func setPlantRoutes(router *gin.Engine, controller controllers.PlantController) 
 }
 
 func setDetailsRoutes(router *gin.Engine, controller controllers.PlantDetailsController) {
-	router.GET("/detail", controller.GetDetails)
-	router.POST("/detail", controller.CreateDetails)
-	router.GET("/detail/:id", controller.GetDetail)
-	router.DELETE("/detail/:id", controller.DeleteDetails)
+	router.GET("/detail/:id_plant", controller.GetDetails)
+	router.POST("/detail/:id_plant", controller.CreateDetails)
+	router.GET("/detail/:id_plant/:id", controller.GetDetail)
+	router.DELETE("/detail/:id_plant/:id", controller.DeleteDetails)
 }

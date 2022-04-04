@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"plant_api/datasource"
 	"plant_api/entities"
+	"strconv"
 )
 
 type PlantDetailsController interface {
@@ -24,11 +26,39 @@ func CreatePlantDetailsController(db datasource.PlantDetailsDatabase) PlantDetai
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
-	Get[entities.Detail](c, repo.db.GetDetail)
+	plantIdStr := c.Param("id_plant")
+
+	plantId, err := strconv.ParseInt(plantIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	detailIdStr := c.Param("id")
+
+	detailId, err := strconv.ParseInt(detailIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	Get[entities.Detail](c, func(id int64) (*entities.Detail, error) {
+		return repo.db.GetDetail(id, &map[string]any{"id_plant": plantId, "id_detail": detailId})
+	})
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetails(c *gin.Context) {
-	GetAll[entities.Detail](c, repo.db.GetDetails)
+	plantIdStr := c.Param("id_plant")
+
+	plantId, err := strconv.ParseInt(plantIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	GetAll[entities.Detail](c, func() (*[]*entities.Detail, error) {
+		return repo.db.GetDetails(&map[string]any{"id_plant": plantId})
+	})
 }
 
 func (repo *PlantDetailsControllerImpl) CreateDetails(c *gin.Context) {
