@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"plant_api/datasource"
 	"plant_api/entities"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PlantDetailsController interface {
@@ -42,8 +43,13 @@ func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
 		return
 	}
 
+	filter := []datasource.DBFilter{}
+
+	filter = append(filter, datasource.DBFilter{Key: "id_plant", Opr: datasource.EQUALS, Value: plantId})
+	filter = append(filter, datasource.DBFilter{Key: "id_detail", Opr: datasource.EQUALS, Value: detailId})
+
 	Get[entities.Detail](c, func(id int64) (*entities.Detail, error) {
-		return repo.db.GetDetail(id, &map[string]any{"id_plant": plantId, "id_detail": detailId})
+		return repo.db.GetDetail(id, &filter) //&map[string]any{"id_plant": plantId, "id_detail": detailId})
 	})
 }
 
@@ -56,8 +62,12 @@ func (repo *PlantDetailsControllerImpl) GetDetails(c *gin.Context) {
 		return
 	}
 
+	filter := []datasource.DBFilter{}
+
+	filter = append(filter, datasource.DBFilter{Key: "id_plant", Opr: datasource.EQUALS, Value: plantId})
+
 	GetAll[entities.Detail](c, func() (*[]*entities.Detail, error) {
-		return repo.db.GetDetails(&map[string]any{"id_plant": plantId})
+		return repo.db.GetDetails(&filter)
 	})
 }
 
