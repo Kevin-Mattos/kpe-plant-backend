@@ -13,14 +13,14 @@ type PlantDetailsDatabase interface {
 	GetDetail(plantId int64, detailId int64) (*entities.Detail, error)
 	GetDetails(plantId int64) (*[]*entities.Detail, error)
 	CreateDetails(detail *entities.Detail) (*entities.Detail, error)
-	DeleteDetails(id int) error
+	DeleteDetails(plantId int64, id int64) error
 }
 
 const (
 	getDetails    = "SELECT * FROM detail where id_plant = $1"
 	getDetailById = "SELECT * FROM detail where id_plant = $1 AND id_detail = $2"
 	createDetail  = "INSERT into detail(id_plant, time, internal_humidity, external_humidity, temp, luminosity) VALUES(:id_plant, :time, :internal_humidity, :external_humidity, :temp, :luminosity)"
-	deleteDetail  = "DELETE FROM detail WHERE id = $1"
+	deleteDetail  = "DELETE FROM detail WHERE id_plant = $1 AND id_detail = $2"
 )
 
 type PlantDetailsDataBaseImpl struct {
@@ -74,8 +74,11 @@ func (database *PlantDetailsDataBaseImpl) CreateDetails(detail *entities.Detail)
 	return detail, nil
 }
 
-func (database *PlantDetailsDataBaseImpl) DeleteDetails(id int) error {
-	result, err := database.db.Exec(deleteDetail, id)
+func (database *PlantDetailsDataBaseImpl) DeleteDetails(plantId int64, id int64) error {
+	result, err := database.db.Exec(deleteDetail, plantId, id)
+	if err != nil {
+		return err
+	}
 	affected, err := result.RowsAffected()
 	if err != nil {
 		return err
