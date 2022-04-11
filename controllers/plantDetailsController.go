@@ -43,14 +43,15 @@ func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
 		return
 	}
 
-	filter := []datasource.DBFilter{}
+	detail, err := repo.db.GetDetail(plantId, detailId)
 
-	filter = append(filter, datasource.DBFilter{Key: "id_plant", Opr: datasource.EQUALS, Value: plantId})
-	filter = append(filter, datasource.DBFilter{Key: "id_detail", Opr: datasource.EQUALS, Value: detailId})
+	//	todo verify 404
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
-	Get[entities.Detail](c, func(id int64) (*entities.Detail, error) {
-		return repo.db.GetDetail(id, &filter) //&map[string]any{"id_plant": plantId, "id_detail": detailId})
-	})
+	c.JSON(http.StatusOK, detail)
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetails(c *gin.Context) {
@@ -62,19 +63,39 @@ func (repo *PlantDetailsControllerImpl) GetDetails(c *gin.Context) {
 		return
 	}
 
-	filter := []datasource.DBFilter{}
-
-	filter = append(filter, datasource.DBFilter{Key: "id_plant", Opr: datasource.EQUALS, Value: plantId})
-
-	GetAll[entities.Detail](c, func() (*[]*entities.Detail, error) {
-		return repo.db.GetDetails(&filter)
-	})
+	details, err := repo.db.GetDetails(plantId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, details)
 }
 
 func (repo *PlantDetailsControllerImpl) CreateDetails(c *gin.Context) {
-	Create[entities.Detail](c, repo.db.CreateDetails)
+	var detail entities.Detail
+	if err := c.ShouldBind(&detail); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	_, err := repo.db.CreateDetails(&detail)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusCreated)
 }
 
 func (repo *PlantDetailsControllerImpl) DeleteDetails(c *gin.Context) {
-	Delete(c, repo.db.DeleteDetails)
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = repo.db.DeleteDetails(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }
