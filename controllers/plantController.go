@@ -1,9 +1,12 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
 	"plant_api/datasource"
 	"plant_api/entities"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PlantController interface {
@@ -24,17 +27,55 @@ func CreatePlantController(db datasource.PlantDatabase) PlantController {
 }
 
 func (repo *PlantControllerImpl) GetPlant(c *gin.Context) {
-	Get[entities.Plant](c, repo.db.GetPlant)
+	strId := c.Param("id")
+	id, err := strconv.ParseInt(strId, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	detail, err := repo.db.GetPlant(id)
+	//	todo verify 404
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, detail)
 }
 
 func (repo *PlantControllerImpl) GetPlants(c *gin.Context) {
-	GetAll[entities.Plant](c, repo.db.GetPlants)
+	details, err := repo.db.GetPlants()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, details)
 }
 
 func (repo *PlantControllerImpl) CreatePlant(c *gin.Context) {
-	Create[entities.Plant](c, repo.db.CreatePlant)
+	var detail entities.Plant
+	if err := c.ShouldBind(&detail); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	_, err := repo.db.CreatePlant(&detail)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusCreated)
 }
 
 func (repo *PlantControllerImpl) DeletePlant(c *gin.Context) {
-	Delete(c, repo.db.DeletePlant)
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = repo.db.DeletePlant(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }

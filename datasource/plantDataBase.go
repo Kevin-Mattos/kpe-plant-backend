@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"fmt"
 	"plant_api/entities"
 
 	"github.com/jmoiron/sqlx"
@@ -15,7 +16,12 @@ type PlantDatabase interface {
 
 const plantsTable = "plant"
 
-//TODO GENERICS
+const (
+	getPlants    = "SELECT * FROM plant"
+	getPlantById = "SELECT * FROM plant where id_plant = $1"
+	createPlant  = "INSERT into plant(name, species) VALUES(:name, :species)"
+	deletePlant  = "DELETE FROM plant WHERE id_plant = $1"
+)
 
 type PlantDataBaseImpl struct {
 	db *sqlx.DB
@@ -28,17 +34,56 @@ func CreatePlantDatabase(db *sqlx.DB) PlantDatabase {
 }
 
 func (database *PlantDataBaseImpl) GetPlant(id int64) (*entities.Plant, error) {
-	return GetById[entities.Plant](database.db, plantsTable, id)
+	var obj entities.Plant
+
+	err := database.db.Get(&obj, getPlantById, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &obj, nil
 }
 
 func (database *PlantDataBaseImpl) GetPlants() (*[]*entities.Plant, error) {
-	return GetAll[entities.Plant](database.db, plantsTable)
+
+	obj := make([]*entities.Plant, 0)
+
+	err := database.db.Select(&obj, getPlants)
+	if err != nil {
+		return nil, err
+	}
+
+	return &obj, nil
 }
 
 func (database *PlantDataBaseImpl) CreatePlant(plant *entities.Plant) (*entities.Plant, error) {
-	return Create(database.db, plantsTable, plant)
+
+	tx := database.db.MustBegin()
+
+	_, err := tx.NamedExec(createPlant, plant)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return plant, nil
 }
 
 func (database *PlantDataBaseImpl) DeletePlant(id int) error {
-	return Delete[entities.Plant](database.db, plantsTable, id)
+
+	result, err := database.db.Exec(deletePlant, id)
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	// todo 404
+	if affected == 0 {
+		return fmt.Errorf("Not Affected")
+	}
+	return err
 }

@@ -1,9 +1,13 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
 	"plant_api/datasource"
 	"plant_api/entities"
+	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PlantDetailsController interface {
@@ -24,17 +28,94 @@ func CreatePlantDetailsController(db datasource.PlantDetailsDatabase) PlantDetai
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetail(c *gin.Context) {
-	Get[entities.Detail](c, repo.db.GetDetail)
+	plantIdStr := c.Param("id_plant")
+
+	plantId, err := strconv.ParseInt(plantIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	detailIdStr := c.Param("id")
+
+	detailId, err := strconv.ParseInt(detailIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	detail, err := repo.db.GetDetail(plantId, detailId)
+
+	//	todo verify 404
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, detail)
 }
 
 func (repo *PlantDetailsControllerImpl) GetDetails(c *gin.Context) {
-	GetAll[entities.Detail](c, repo.db.GetDetails)
+	plantIdStr := c.Param("id_plant")
+
+	plantId, err := strconv.ParseInt(plantIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	details, err := repo.db.GetDetails(plantId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, details)
 }
 
 func (repo *PlantDetailsControllerImpl) CreateDetails(c *gin.Context) {
-	Create[entities.Detail](c, repo.db.CreateDetails)
+	var detail entities.Detail
+	if err := c.ShouldBind(&detail); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	plantIdStr := c.Param("id_plant")
+
+	plantId, err := strconv.ParseInt(plantIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	detail.PlantId = plantId
+	detail.Time = time.Now()
+	//todo get Time
+	_, err = repo.db.CreateDetails(&detail)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusCreated)
 }
 
 func (repo *PlantDetailsControllerImpl) DeleteDetails(c *gin.Context) {
-	Delete(c, repo.db.DeleteDetails)
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	plantIdStr := c.Param("id_plant")
+
+	plantId, err := strconv.ParseInt(plantIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = repo.db.DeleteDetails(plantId, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }
